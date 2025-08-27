@@ -5,8 +5,6 @@ Dependencies:
 - Java JRE (14 or above)
 - Gradle
 
-Please specify user and password in src/test/java/apiEngine/APIServiceBase.java
-
 Technologies and tools:
 
 - Java;
@@ -43,4 +41,5 @@ The project is structured in 3 main parts:
 6. Download the necessary drivers that you will be using (ChromedDriver, EdgeDriver,
    etc.); (the files need to be signed in order to be able to use them on RBI machines);
 7. Set the drivers path in the PATH environment variable (you can also set the path from the IDE Run Configuration window);
+
 
