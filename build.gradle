@@ -1,0 +1,100 @@
+plugins {
+    id 'java'
+}
+
+group 'org.rbinternational'
+version '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', "$projectDir/build/generated/src/main/java"]
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+ext {
+    restAssuredVersion = '5.5.0'
+    cucumberVersion = '7.20.1'
+    junitPlatformVersion = '1.11.3'
+    junitJupiterVersion = '5.11.3'
+    lombokVersion = '1.18.34'
+    jacksonVersion = '2.18.1'
+}
+
+dependencies {
+    implementation "io.rest-assured:rest-assured:$restAssuredVersion"
+    implementation "io.rest-assured:json-path:$restAssuredVersion"
+    implementation "io.rest-assured:xml-path:$restAssuredVersion"
+    implementation 'org.awaitility:awaitility:4.2.2'
+    implementation 'io.cucumber:gherkin:30.0.0'
+    implementation "io.cucumber:cucumber-java:$cucumberVersion"
+    implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
+
+    testImplementation "io.cucumber:cucumber-junit-platform-engine:$cucumberVersion"
+    testImplementation "io.cucumber:cucumber-junit:$cucumberVersion"
+    testImplementation "io.cucumber:cucumber-picocontainer:$cucumberVersion"
+    implementation 'org.assertj:assertj-core:3.26.3'
+    implementation "org.junit.platform:junit-platform-commons:$junitPlatformVersion"
+    testImplementation "org.junit.platform:junit-platform-suite:$junitPlatformVersion"
+    testImplementation "org.junit.platform:junit-platform-suite-api:$junitPlatformVersion"
+    testImplementation "org.junit.platform:junit-platform-runner:$junitPlatformVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
+    testImplementation "org.junit.vintage:junit-vintage-engine:$junitJupiterVersion"
+    testImplementation "org.projectlombok:lombok:$lombokVersion"
+    testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
+    implementation 'com.github.javafaker:javafaker:1.0.2'
+    implementation 'org.aeonbits.owner:owner-java8:1.0.12'
+}
+
+tasks {
+    test {
+        // REQUIRED: Tell Gradle to use the JUnit 5 platform to execute tests
+        // see https://docs.gradle.org/current/userguide/java_testing.html#using_junit5
+        String includedTags = project.hasProperty("includeTags") ? project.property("includeTags") : 'new'
+        useJUnitPlatform {
+            // OPTIONAL: Exclude all tests (examples/scenarios) annotated with @disabled by default
+            excludeTags("disabled")
+            // OPTIONAL: Include only specified tags using JUnit5 tag expressions
+            includeTags includedTags
+        }
+        testLogging.showStandardStreams = true
+        systemProperties System.getProperties()
+        systemProperty("cucumber.junit-platform.naming-strategy", "long")
+        // OPTIONAL: Ignore test failures so that build pipelines won't get blocked by failing examples/scenarios
+        // ignoreFailures = true
+        // OPTIONAL: Copy all system properties from the command line (-D...) to the test environment
+        systemProperties(project.gradle.startParameter.systemPropertiesArgs)
+        // OPTIONAL: Enable Cucumber plugins, enable/disable as desired
+        systemProperty("cucumber.plugin", "json:target/cucumber/cucumber.json, junit:target/cucumber-reports/cucumber.xml")
+        // OPTIONAL: Improve readability of test names in reports
+        systemProperty("cucumber.junit-platform.naming-strategy", "long")
+        // OPTIONAL: Don't show Cucumber ads
+        systemProperty("cucumber.publish.quiet", "true")
+        // OPTIONAL: Force test execution even if they are up-to-date according to Gradle or use "gradle test --rerun"
+        outputs.upToDateWhen { false }
+    }
+}
+
+// OPTIONAL: Make sure that we are always using the ALL distro of Gradle for better IDE integration
+tasks.named("wrapper") {
+    distributionType = Wrapper.DistributionType.ALL
+}
